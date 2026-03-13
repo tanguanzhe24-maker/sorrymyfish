@@ -1,0 +1,363 @@
+.apology-page {
+  position: relative;
+  min-height: 100svh;
+  overflow: hidden;
+}
+
+.intro-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: grid;
+  place-items: center;
+  color: #fff7f2;
+  background:
+    radial-gradient(circle at 10% 15%, #ffaab6 0, transparent 42%),
+    radial-gradient(circle at 90% 20%, #ff8b94 0, transparent 40%),
+    radial-gradient(circle at 50% 80%, #e24868 0, #9d1630 72%);
+  animation: introFadeOut 0.8s ease 3.6s forwards;
+}
+
+.intro-content {
+  text-align: center;
+  width: min(86vw, 760px);
+  z-index: 1;
+  animation: introPop 0.7s ease;
+}
+
+.intro-kicker {
+  letter-spacing: 0.2em;
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+  color: #ffd7dd;
+}
+
+.intro-content h1 {
+  margin: 0.2rem 0 0.6rem;
+  color: #fff;
+  font-size: clamp(1.8rem, 5vw, 3.4rem);
+  line-height: 1.2;
+}
+
+.intro-content p {
+  margin: 0 auto;
+  max-width: 38ch;
+  font-size: clamp(1rem, 2.4vw, 1.2rem);
+}
+
+.skip-btn {
+  margin-top: 1.2rem;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.skip-btn:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.intro-hearts {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.burst-heart {
+  position: absolute;
+  left: var(--x);
+  bottom: -6vh;
+  font-size: clamp(1rem, 3vw, 2rem);
+  color: rgba(255, 239, 242, 0.92);
+  animation: burst 3.2s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
+  animation-delay: var(--delay);
+}
+
+.home {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  padding: clamp(1.2rem, 2.6vw, 2.4rem);
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(255, 188, 205, 0.4), transparent 42%),
+    radial-gradient(circle at 85% 20%, rgba(255, 217, 168, 0.45), transparent 43%),
+    linear-gradient(150deg, #fff8f5 0%, #fff0ee 34%, #ffe8e0 100%);
+}
+
+.home.hidden {
+  opacity: 0;
+}
+
+.home.visible {
+  opacity: 1;
+  animation: pageRise 0.9s ease;
+}
+
+.note-card {
+  position: relative;
+  width: min(92vw, 680px);
+  border-radius: 28px;
+  padding: clamp(1.1rem, 3.2vw, 2.2rem);
+  background: rgba(255, 254, 251, 0.9);
+  border: 1px solid rgba(255, 154, 173, 0.4);
+  box-shadow:
+    0 24px 40px rgba(185, 53, 85, 0.15),
+    0 3px 0 rgba(255, 255, 255, 0.7) inset;
+  backdrop-filter: blur(5px);
+  z-index: 2;
+}
+
+.label {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #b43f59;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.note-card h2 {
+  margin: 0.55rem 0 1rem;
+  font-size: clamp(1.2rem, 3vw, 2rem);
+  line-height: 1.35;
+  color: #5e1c2d;
+}
+
+.note-card form {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.note-card textarea {
+  width: 100%;
+  border: 1px solid #f3bcc8;
+  border-radius: 16px;
+  padding: 1rem;
+  font: inherit;
+  color: #5a2330;
+  background: rgba(255, 250, 247, 0.95);
+  resize: vertical;
+  min-height: 180px;
+  box-sizing: border-box;
+}
+
+.note-card textarea:focus {
+  outline: 2px solid #ff7290;
+  outline-offset: 2px;
+}
+
+.note-card button {
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(120deg, #ff5e7f, #ff8a65);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.85rem 1.2rem;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.note-card button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(219, 55, 98, 0.3);
+}
+
+.submit-message {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #8f2f45;
+}
+
+.ambient-hearts {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.float-heart {
+  position: absolute;
+  left: calc((var(--i) * 7%) + 2%);
+  bottom: -2rem;
+  color: rgba(226, 66, 105, 0.4);
+  font-size: clamp(0.85rem, 2vw, 1.4rem);
+  animation: drift calc(8s + var(--i) * 0.45s) linear infinite;
+  animation-delay: calc(var(--i) * -0.9s);
+}
+
+.photo {
+  position: absolute;
+  width: clamp(96px, 17vw, 190px);
+  background: #fff;
+  border-radius: 12px;
+  padding: 8px;
+  box-shadow: 0 16px 25px rgba(154, 34, 63, 0.22);
+  z-index: 1;
+}
+
+.photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.photo-1 {
+  top: 8%;
+  left: max(2%, calc(50% - 520px));
+  transform: rotate(-10deg);
+}
+
+.photo-2 {
+  top: 10%;
+  right: max(3%, calc(50% - 520px));
+  transform: rotate(9deg);
+}
+
+.photo-3 {
+  bottom: 8%;
+  left: max(1%, calc(50% - 540px));
+  transform: rotate(8deg);
+}
+
+.photo-4 {
+  bottom: 10%;
+  right: max(2%, calc(50% - 530px));
+  transform: rotate(-8deg);
+}
+
+@media (max-width: 1024px) {
+  .photo {
+    width: clamp(84px, 19vw, 150px);
+  }
+
+  .photo-1 {
+    top: 7%;
+    left: 2%;
+  }
+
+  .photo-2 {
+    top: 9%;
+    right: 2%;
+  }
+
+  .photo-3 {
+    bottom: 9%;
+    left: 2%;
+  }
+
+  .photo-4 {
+    bottom: 11%;
+    right: 2%;
+  }
+}
+
+@media (max-width: 760px) {
+  .home {
+    padding-block: 1rem 2rem;
+  }
+
+  .note-card {
+    width: min(94vw, 560px);
+    border-radius: 22px;
+  }
+
+  .photo-1,
+  .photo-2 {
+    top: auto;
+    bottom: 1%;
+  }
+
+  .photo-1 {
+    left: 5%;
+    transform: rotate(-6deg);
+  }
+
+  .photo-2 {
+    right: 5%;
+    transform: rotate(6deg);
+  }
+
+  .photo-3,
+  .photo-4 {
+    display: none;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 580px) {
+  .note-card textarea {
+    min-height: 120px;
+  }
+
+  .photo-3,
+  .photo-4 {
+    display: none;
+  }
+}
+
+@keyframes burst {
+  0% {
+    transform: translateY(0) scale(0.7);
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-110vh) scale(1.35);
+    opacity: 0;
+  }
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(-18px, -105vh, 0) rotate(18deg);
+    opacity: 0;
+  }
+}
+
+@keyframes introPop {
+  from {
+    transform: scale(0.94);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes introFadeOut {
+  to {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+@keyframes pageRise {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
