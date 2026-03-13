@@ -9,6 +9,8 @@ type WishEntry = {
   sourceId?: string;
 };
 
+const FALLBACK_STORAGE_KEY = 'apology-local-history';
+
 const SUMMARY_LINES = [
   '⁍ 及时察觉你的小情绪 提出实质性的帮助 并且不能逼你 （我会永远支持你）',
   '⁍ 沟通时更温和 不要让你感受到压力或被批评',
@@ -56,24 +58,55 @@ function App() {
   const [message, setMessage] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isLoadingEntries, setIsLoadingEntries] = useState(true);
+  const [localMode, setLocalMode] = useState(false);
+
+  const loadLocalEntries = () => {
+    try {
+      const raw = localStorage.getItem(FALLBACK_STORAGE_KEY);
+      if (!raw) {
+        return [] as WishEntry[];
+      }
+      const parsed = JSON.parse(raw) as WishEntry[];
+      if (!Array.isArray(parsed)) {
+        return [] as WishEntry[];
+      }
+      return parsed;
+    } catch {
+      return [] as WishEntry[];
+    }
+  };
+
+  const saveLocalEntries = (nextEntries: WishEntry[]) => {
+    localStorage.setItem(FALLBACK_STORAGE_KEY, JSON.stringify(nextEntries));
+    setEntries(nextEntries);
+  };
+
+  const nowText = () => new Date().toLocaleString('zh-CN', { hour12: false });
+
+  const fetchEntries = async () => {
+    try {
+      const response = await fetch('/api/wish');
+      if (!response.ok) {
+        throw new Error('读取失败');
+      }
+      const data = (await response.json()) as { entries: WishEntry[] };
+      setEntries(data.entries ?? []);
+      setLocalMode(false);
+      return true;
+    } catch {
+      const localEntries = loadLocalEntries();
+      setEntries(localEntries);
+      setLocalMode(true);
+      setMessage('当前使用本机浏览器保存模式（部署后请检查 API/KV 配置）。');
+      return false;
+    }
+  };
 
   useEffect(() => {
-    const fetchEntries = async () => {
-      try {
-        const response = await fetch('/api/wish');
-        if (!response.ok) {
-          throw new Error('读取失败');
-        }
-        const data = (await response.json()) as { entries: WishEntry[] };
-        setEntries(data.entries ?? []);
-      } catch {
-        setMessage('读取历史留言失败，请确认你是用 npm run dev 启动。');
-      } finally {
-        setIsLoadingEntries(false);
-      }
-    };
-
-    fetchEntries();
+    void (async () => {
+      await fetchEntries();
+      setIsLoadingEntries(false);
+    })();
   }, []);
 
   useEffect(() => {
@@ -95,6 +128,30 @@ function App() {
 
     try {
       setIsSaving(true);
+
+      if (localMode) {
+        const now = nowText();
+        let nextEntries = [...entries];
+        if (editingId) {
+          nextEntries = nextEntries.map((entry) =>
+            entry.id === editingId ? { ...entry, content: trimmed, time: now } : entry,
+          );
+        } else {
+          nextEntries.unshift({
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            time: now,
+            content: trimmed,
+          });
+        }
+
+        saveLocalEntries(nextEntries);
+        setWishText('');
+        const edited = Boolean(editingId);
+        setEditingId(null);
+        setMessage(edited ? '已更新这条留言（本机保存）。' : '已保存新留言（本机保存）。');
+        return;
+      }
+
       const response = await fetch('/api/wish', {
         method: 'POST',
         headers: {
@@ -110,16 +167,32 @@ function App() {
         throw new Error('保存失败');
       }
 
-      const listRes = await fetch('/api/wish');
-      const listData = (await listRes.json()) as { entries: WishEntry[] };
-      setEntries(listData.entries ?? []);
+      await fetchEntries();
 
       setWishText('');
       const edited = Boolean(editingId);
       setEditingId(null);
       setMessage(edited ? '已更新这条留言。' : '已保存新留言。');
     } catch {
-      setMessage('写入失败，请确认你是用 npm run dev 启动。');
+      const now = nowText();
+      let nextEntries = [...entries];
+      if (editingId) {
+        nextEntries = nextEntries.map((entry) =>
+          entry.id === editingId ? { ...entry, content: trimmed, time: now } : entry,
+        );
+      } else {
+        nextEntries.unshift({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          time: now,
+          content: trimmed,
+        });
+      }
+      setLocalMode(true);
+      saveLocalEntries(nextEntries);
+      setWishText('');
+      const edited = Boolean(editingId);
+      setEditingId(null);
+      setMessage(edited ? 'API 不可用，已改为本机更新这条留言。' : 'API 不可用，已改为本机保存新留言。');
     } finally {
       setIsSaving(false);
     }
@@ -132,6 +205,17 @@ function App() {
     }
 
     try {
+      if (localMode) {
+        const nextEntries = entries.filter((item) => item.id !== entry.id);
+        saveLocalEntries(nextEntries);
+        if (editingId === entry.id) {
+          setWishText('');
+          setEditingId(null);
+        }
+        setMessage('已删除这条历史留言（本机保存）。');
+        return;
+      }
+
       const response = await fetch(`/api/wish?id=${encodeURIComponent(entry.id)}`, {
         method: 'DELETE',
       });
@@ -140,9 +224,7 @@ function App() {
         throw new Error('删除失败');
       }
 
-      const listRes = await fetch('/api/wish');
-      const listData = (await listRes.json()) as { entries: WishEntry[] };
-      setEntries(listData.entries ?? []);
+      await fetchEntries();
 
       if (editingId === entry.id) {
         setWishText('');
@@ -151,7 +233,14 @@ function App() {
 
       setMessage('已删除这条历史留言。');
     } catch {
-      setMessage('删除失败，请稍后重试。');
+      const nextEntries = entries.filter((item) => item.id !== entry.id);
+      setLocalMode(true);
+      saveLocalEntries(nextEntries);
+      if (editingId === entry.id) {
+        setWishText('');
+        setEditingId(null);
+      }
+      setMessage('API 不可用，已改为本机删除。');
     }
   };
 

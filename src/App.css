@@ -307,7 +307,7 @@
 }
 
 .photo {
-  position: absolute;
+  position: relative;
   width: clamp(118px, 18vw, 220px);
   background: linear-gradient(175deg, #fff, #fff4f0);
   border-radius: 15px;
@@ -345,27 +345,28 @@
 }
 
 .photo-1 {
-  top: 6%;
-  left: max(1.5%, calc(50% - 560px));
   transform: rotate(-10deg);
 }
 
 .photo-2 {
-  top: 7%;
-  right: max(2.5%, calc(50% - 560px));
   transform: rotate(9deg);
 }
 
 .photo-3 {
-  bottom: 6%;
-  left: max(1%, calc(50% - 580px));
   transform: rotate(8deg);
 }
 
 .photo-4 {
-  bottom: 7%;
-  right: max(2%, calc(50% - 575px));
   transform: rotate(-8deg);
+}
+
+.memory-wall {
+  width: min(92vw, 640px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 auto 0.95rem;
+  z-index: 2;
 }
 
 @media (max-width: 1100px) {
@@ -375,37 +376,10 @@
     align-content: start;
   }
 
-  .memory-wall {
-    width: min(92vw, 640px);
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0.75rem;
-    margin: 0 auto 0.95rem;
-    z-index: 2;
-  }
-
   .note-card {
     width: min(90vw, 640px);
     margin-inline: auto;
     margin-top: 0.2rem;
-  }
-
-  .photo {
-    position: relative;
-    width: 100%;
-    inset: auto;
-    transform: none;
-  }
-
-  .photo-1,
-  .photo-2,
-  .photo-3,
-  .photo-4 {
-    top: auto;
-    right: auto;
-    left: auto;
-    bottom: auto;
-    transform: none;
   }
 }
 
